@@ -6,9 +6,68 @@
   <title>우리 가족</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; max-width: 480px; margin: 0 auto; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; background: #f5f5f5; max-width: 480px; margin: 0 auto; }
     .screen { display: none; padding: 24px; min-height: 100vh; }
     .screen.active { display: block; }
+
+    /* ── 첫 화면 (KRICT 스타일) ── */
+    #auth-screen {
+      max-width: 100%; padding: 0; background: #fff;
+      display: none; flex-direction: column; min-height: 100vh;
+    }
+    #auth-screen.active { display: flex; }
+    .auth-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px; background: #fff;
+      border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;
+    }
+    .auth-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #1a8a6e; text-decoration: none; }
+    .auth-logo span { font-size: 28px; }
+    .auth-hero {
+      flex: 1; display: flex; align-items: stretch;
+      min-height: calc(100vh - 64px);
+    }
+    .auth-left {
+      flex: 1; display: flex; flex-direction: column; justify-content: center;
+      padding: 60px 64px; max-width: 560px;
+    }
+    .auth-eyebrow { font-size: 13px; font-weight: 600; color: #1a8a6e; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+    .auth-title { font-size: 40px; font-weight: 800; color: #111; line-height: 1.2; margin-bottom: 12px; }
+    .auth-title em { color: #1a8a6e; font-style: normal; }
+    .auth-desc { font-size: 15px; color: #666; line-height: 1.7; margin-bottom: 36px; }
+    .auth-form-box { background: #f8fffe; border: 1px solid #d0ede7; border-radius: 16px; padding: 28px; }
+    .auth-form-box input {
+      width: 100%; padding: 13px 16px; border: 1px solid #ddd; border-radius: 10px;
+      font-size: 15px; margin-bottom: 10px; outline: none; background: white;
+      font-family: inherit;
+    }
+    .auth-form-box input:focus { border-color: #1a8a6e; }
+    .auth-form-box .btn-primary {
+      width: 100%; padding: 14px; background: #1a8a6e; color: white;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
+      cursor: pointer; margin-bottom: 10px; font-family: inherit;
+    }
+    .auth-form-box .btn-primary:hover { background: #146b56; }
+    .auth-form-box .btn-link { text-align: center; color: #1a8a6e; cursor: pointer; font-size: 14px; margin-top: 4px; }
+    .auth-form-box .auth-error { color: #e53e3e; font-size: 13px; margin-bottom: 10px; }
+    .auth-right {
+      flex: 1; background: linear-gradient(135deg, #e6f7f2 0%, #b2e8d8 50%, #7dd4be 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .auth-visual { text-align: center; z-index: 1; }
+    .auth-visual .big-emoji { font-size: 120px; display: block; margin-bottom: 24px; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.12)); }
+    .auth-visual h3 { font-size: 22px; font-weight: 700; color: #1a5c4a; margin-bottom: 8px; }
+    .auth-visual p { font-size: 14px; color: #2d8c72; }
+    .auth-deco {
+      position: absolute; border-radius: 50%; background: rgba(255,255,255,0.15);
+    }
+    @media (max-width: 768px) {
+      .auth-right { display: none; }
+      .auth-left { padding: 40px 24px; max-width: 100%; }
+      .auth-title { font-size: 28px; }
+      .auth-header { padding: 0 24px; }
+    }
     h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
     h2 { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
     .subtitle { color: #666; margin-bottom: 32px; }
@@ -119,27 +178,55 @@
 
 <!-- 로그인/회원가입 -->
 <div id="auth-screen" class="screen">
-  <div style="padding-top:60px;">
-    <div style="text-align:center; font-size:64px; margin-bottom:20px;">👨‍👩‍👧‍👦</div>
-    <h1 style="text-align:center;">우리 가족</h1>
-    <p class="subtitle" style="text-align:center;">가족끼리만 공유하는 공간</p>
 
-    <div id="login-form">
-      <input type="email" id="login-email" placeholder="이메일" />
-      <input type="password" id="login-password" placeholder="비밀번호" />
-      <div id="login-error" class="error" style="display:none;"></div>
-      <button onclick="login()">로그인</button>
-      <p class="link" onclick="showSignup()">처음이신가요? 회원가입</p>
+  <!-- 상단 헤더 -->
+  <header class="auth-header">
+    <div class="auth-logo">
+      <span>👨‍👩‍👧‍👦</span>우리 가족
+    </div>
+    <div style="font-size:13px; color:#999;">가족만의 프라이빗 공간</div>
+  </header>
+
+  <!-- 히어로 섹션 -->
+  <div class="auth-hero">
+
+    <!-- 왼쪽: 폼 -->
+    <div class="auth-left">
+      <div class="auth-eyebrow">Family Private Space</div>
+      <h1 class="auth-title">우리 가족만의<br><em>특별한 공간</em></h1>
+      <p class="auth-desc">일정을 함께 관리하고, 소중한 사진을 나눠요.<br>초대된 가족만 입장할 수 있는 프라이빗 공간입니다.</p>
+
+      <div class="auth-form-box">
+        <div id="login-form">
+          <input type="email" id="login-email" placeholder="이메일" />
+          <input type="password" id="login-password" placeholder="비밀번호" />
+          <div id="login-error" class="auth-error" style="display:none;"></div>
+          <button class="btn-primary" onclick="login()">로그인</button>
+          <p class="btn-link" onclick="showSignup()">처음이신가요? 회원가입 →</p>
+        </div>
+
+        <div id="signup-form" style="display:none;">
+          <input type="text" id="signup-name" placeholder="이름 (예: 아빠, 엄마, 민준)" />
+          <input type="email" id="signup-email" placeholder="이메일" />
+          <input type="password" id="signup-password" placeholder="비밀번호 (6자 이상)" />
+          <div id="signup-error" class="auth-error" style="display:none;"></div>
+          <button class="btn-primary" onclick="signup()">회원가입</button>
+          <p class="btn-link" onclick="showLogin()">← 이미 계정이 있으신가요?</p>
+        </div>
+      </div>
     </div>
 
-    <div id="signup-form" style="display:none;">
-      <input type="text" id="signup-name" placeholder="이름 (예: 아빠, 엄마, 민준)" />
-      <input type="email" id="signup-email" placeholder="이메일" />
-      <input type="password" id="signup-password" placeholder="비밀번호 (6자 이상)" />
-      <div id="signup-error" class="error" style="display:none;"></div>
-      <button onclick="signup()">회원가입</button>
-      <p class="link" onclick="showLogin()">이미 계정이 있으신가요? 로그인</p>
+    <!-- 오른쪽: 비주얼 -->
+    <div class="auth-right">
+      <div class="auth-deco" style="width:300px; height:300px; top:-80px; right:-80px;"></div>
+      <div class="auth-deco" style="width:200px; height:200px; bottom:-60px; left:-60px;"></div>
+      <div class="auth-visual">
+        <span class="big-emoji">🏡</span>
+        <h3>함께여서 행복한 우리 가족</h3>
+        <p>📅 일정 공유 &nbsp;·&nbsp; 📷 사진 앨범 &nbsp;·&nbsp; 👨‍👩‍👧 가족 초대</p>
+      </div>
     </div>
+
   </div>
 </div>
 
