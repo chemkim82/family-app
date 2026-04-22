@@ -4,303 +4,536 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>우리 가족</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --teal: #009B8D;
+      --teal-dark: #007A6E;
+      --teal-light: #E6F5F4;
+      --teal-mid: #B2DED9;
+      --navy: #1C2B4A;
+      --gray: #6B7280;
+      --gray-light: #F4F6F8;
+      --border: #E5E7EB;
+      --white: #FFFFFF;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif; background: #f5f5f5; max-width: 480px; margin: 0 auto; }
-    .screen { display: none; padding: 24px; min-height: 100vh; }
+    body {
+      font-family: 'Noto Sans KR', -apple-system, sans-serif;
+      background: var(--gray-light);
+      color: var(--navy);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .screen { display: none; min-height: 100vh; }
     .screen.active { display: block; }
 
-    /* ── 첫 화면 (KRICT 스타일) ── */
-    #auth-screen {
-      max-width: 100%; padding: 0; background: #fff;
-      display: none; flex-direction: column; min-height: 100vh;
-    }
-    #auth-screen.active { display: flex; }
-    .auth-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 48px; height: 64px; background: #fff;
-      border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10;
-    }
-    .auth-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; color: #1a8a6e; text-decoration: none; }
-    .auth-logo span { font-size: 28px; }
-    .auth-hero {
-      flex: 1; display: flex; align-items: stretch;
-      min-height: calc(100vh - 64px);
-    }
-    .auth-left {
-      flex: 1; display: flex; flex-direction: column; justify-content: center;
-      padding: 60px 64px; max-width: 560px;
-    }
-    .auth-eyebrow { font-size: 13px; font-weight: 600; color: #1a8a6e; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
-    .auth-title { font-size: 40px; font-weight: 800; color: #111; line-height: 1.2; margin-bottom: 12px; }
-    .auth-title em { color: #1a8a6e; font-style: normal; }
-    .auth-desc { font-size: 15px; color: #666; line-height: 1.7; margin-bottom: 36px; }
-    .auth-form-box { background: #f8fffe; border: 1px solid #d0ede7; border-radius: 16px; padding: 28px; }
-    .auth-form-box input {
-      width: 100%; padding: 13px 16px; border: 1px solid #ddd; border-radius: 10px;
-      font-size: 15px; margin-bottom: 10px; outline: none; background: white;
-      font-family: inherit;
-    }
-    .auth-form-box input:focus { border-color: #1a8a6e; }
-    .auth-form-box .btn-primary {
-      width: 100%; padding: 14px; background: #1a8a6e; color: white;
-      border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
-      cursor: pointer; margin-bottom: 10px; font-family: inherit;
-    }
-    .auth-form-box .btn-primary:hover { background: #146b56; }
-    .auth-form-box .btn-link { text-align: center; color: #1a8a6e; cursor: pointer; font-size: 14px; margin-top: 4px; }
-    .auth-form-box .auth-error { color: #e53e3e; font-size: 13px; margin-bottom: 10px; }
-    .auth-right {
-      flex: 1; background: linear-gradient(135deg, #e6f7f2 0%, #b2e8d8 50%, #7dd4be 100%);
+    /* ── 로딩 ── */
+    #loading-screen { display: none; }
+    #loading-screen.active {
       display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
+      flex-direction: column; gap: 16px; background: var(--white);
     }
-    .auth-visual { text-align: center; z-index: 1; }
-    .auth-visual .big-emoji { font-size: 120px; display: block; margin-bottom: 24px; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.12)); }
-    .auth-visual h3 { font-size: 22px; font-weight: 700; color: #1a5c4a; margin-bottom: 8px; }
-    .auth-visual p { font-size: 14px; color: #2d8c72; }
-    .auth-deco {
-      position: absolute; border-radius: 50%; background: rgba(255,255,255,0.15);
+    .loading-logo { font-size: 52px; }
+    .loading-text { font-size: 14px; color: var(--gray); letter-spacing: 1px; }
+    .loading-bar {
+      width: 120px; height: 3px; background: var(--border); border-radius: 99px; overflow: hidden;
     }
-    @media (max-width: 768px) {
-      .auth-right { display: none; }
-      .auth-left { padding: 40px 24px; max-width: 100%; }
-      .auth-title { font-size: 28px; }
-      .auth-header { padding: 0 24px; }
+    .loading-bar-inner {
+      height: 100%; width: 40%; background: var(--teal); border-radius: 99px;
+      animation: slide 1.2s ease-in-out infinite;
     }
-    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-    h2 { font-size: 22px; font-weight: 600; margin-bottom: 16px; }
-    .subtitle { color: #666; margin-bottom: 32px; }
-    input, textarea {
-      width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px;
-      font-size: 16px; margin-bottom: 12px; outline: none; background: white;
+    @keyframes slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
     }
-    input:focus { border-color: #007AFF; }
-    button {
-      width: 100%; padding: 14px; background: #007AFF; color: white;
-      border: none; border-radius: 12px; font-size: 16px; font-weight: 600;
-      cursor: pointer; margin-bottom: 12px;
+
+    /* ── 첫 화면 ── */
+    #auth-screen { display: none; background: var(--white); max-width: 100%; }
+    #auth-screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 68px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
     }
-    button.secondary { background: white; color: #007AFF; border: 2px solid #007AFF; }
-    .link { text-align: center; color: #007AFF; cursor: pointer; margin-top: 8px; font-size: 15px; }
-    .error { color: #FF3B30; font-size: 14px; margin-bottom: 12px; }
-    .nav {
-      display: flex; background: white; border-top: 1px solid #eee;
-      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 100%; max-width: 480px;
+    .site-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 19px; font-weight: 700; color: var(--navy);
     }
-    .nav-btn {
-      flex: 1; padding: 12px 0; text-align: center; cursor: pointer;
-      font-size: 11px; color: #999; border: none; background: none;
+    .site-logo .logo-icon {
+      width: 36px; height: 36px; background: var(--teal);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
     }
-    .nav-btn.active { color: #007AFF; }
-    .nav-btn span { display: block; font-size: 22px; margin-bottom: 2px; }
-    .dashboard { padding: 0 20px 80px; }
-    .header { padding: 24px 0 12px; display: flex; justify-content: space-between; align-items: center; }
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
-    .cal-day-name { text-align: center; font-size: 12px; color: #999; padding: 6px 0; }
+    .site-logo .logo-sub { font-size: 12px; color: var(--gray); font-weight: 400; display: block; }
+    .site-header-right { font-size: 12px; color: var(--gray); }
+
+    .hero { display: flex; align-items: stretch; flex: 1; min-height: calc(100vh - 68px); }
+
+    .hero-left {
+      flex: 1.1; display: flex; flex-direction: column; justify-content: center;
+      padding: 64px 56px; max-width: 580px;
+    }
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; color: var(--teal);
+      letter-spacing: 1.5px; text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .hero-label::before {
+      content: ''; display: block; width: 20px; height: 2px; background: var(--teal);
+    }
+    .hero-title {
+      font-size: 42px; font-weight: 900; color: var(--navy);
+      line-height: 1.15; margin-bottom: 16px;
+    }
+    .hero-title em { color: var(--teal); font-style: normal; display: block; }
+    .hero-desc {
+      font-size: 15px; color: var(--gray); line-height: 1.8;
+      margin-bottom: 40px; font-weight: 300;
+    }
+
+    .form-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px;
+      box-shadow: var(--shadow);
+    }
+    .form-card input {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 14px; margin-bottom: 12px; outline: none;
+      font-family: inherit; color: var(--navy);
+      transition: border-color 0.2s;
+    }
+    .form-card input:focus { border-color: var(--teal); }
+    .form-card input::placeholder { color: #aaa; }
+    .btn-teal {
+      width: 100%; padding: 14px; background: var(--teal); color: var(--white);
+      border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+      cursor: pointer; margin-bottom: 12px; font-family: inherit;
+      transition: background 0.2s; letter-spacing: 0.5px;
+    }
+    .btn-teal:hover { background: var(--teal-dark); }
+    .btn-outline {
+      width: 100%; padding: 13px; background: var(--white); color: var(--teal);
+      border: 1.5px solid var(--teal); border-radius: 8px; font-size: 14px;
+      font-weight: 600; cursor: pointer; margin-bottom: 12px;
+      font-family: inherit; transition: all 0.2s;
+    }
+    .btn-outline:hover { background: var(--teal-light); }
+    .form-link {
+      text-align: center; color: var(--teal); cursor: pointer;
+      font-size: 13px; margin-top: 4px; font-weight: 500;
+    }
+    .form-link:hover { text-decoration: underline; }
+    .form-error { color: #DC2626; font-size: 13px; margin-bottom: 10px; }
+
+    .hero-right {
+      flex: 1; position: relative; overflow: hidden;
+      background: linear-gradient(145deg, #E8F5F3 0%, #C5E8E4 40%, #8DD0C8 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-visual { text-align: center; z-index: 2; position: relative; }
+    .hero-emoji { font-size: 96px; display: block; margin-bottom: 28px;
+      filter: drop-shadow(0 12px 24px rgba(0,0,0,0.1)); }
+    .hero-visual-title { font-size: 20px; font-weight: 700; color: var(--teal-dark); margin-bottom: 10px; }
+    .hero-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .hero-chip {
+      background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);
+      padding: 6px 14px; border-radius: 99px;
+      font-size: 13px; color: var(--teal-dark); font-weight: 500;
+    }
+    .hero-deco {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+    }
+
+    @media (max-width: 800px) {
+      .hero-right { display: none; }
+      .hero-left { padding: 40px 24px; max-width: 100%; }
+      .hero-title { font-size: 30px; }
+      .site-header { padding: 0 24px; }
+    }
+
+    /* ── 그룹 설정 ── */
+    #group-screen { background: var(--white); max-width: 100%; }
+    #group-screen.active { display: flex; flex-direction: column; }
+    .group-wrap {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 40px 24px;
+    }
+    .group-card {
+      width: 100%; max-width: 420px; background: var(--white);
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 40px 36px; box-shadow: var(--shadow-lg);
+    }
+    .group-card h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; color: var(--navy); }
+    .group-card p { font-size: 14px; color: var(--gray); margin-bottom: 28px; line-height: 1.6; }
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0; color: var(--gray); font-size: 13px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .group-card input {
+      width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 16px; margin-bottom: 12px; outline: none;
+      font-family: inherit; text-align: center; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--navy);
+    }
+    .group-card input:focus { border-color: var(--teal); }
+    .group-err { color: #DC2626; font-size: 13px; margin-bottom: 8px; }
+
+    /* ── 앱 공통 ── */
+    #app-screen { background: var(--gray-light); }
+    #app-screen.active { display: block; }
+
+    .app-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; height: 56px; background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .app-logo { font-size: 16px; font-weight: 700; color: var(--teal); display: flex; align-items: center; gap: 6px; }
+    .app-logo .icon { font-size: 20px; }
+    .app-group-name { font-size: 12px; color: var(--gray); font-weight: 400; }
+
+    .tab-content { padding: 16px 16px 80px; }
+
+    /* 섹션 헤더 */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 2px solid var(--teal);
+    }
+    .section-title { font-size: 18px; font-weight: 700; color: var(--navy); }
+    .section-sub { font-size: 12px; color: var(--gray); }
+
+    /* 캘린더 */
+    .month-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--white); border-radius: 12px; padding: 12px 16px;
+      margin-bottom: 12px; box-shadow: var(--shadow);
+    }
+    .month-btn {
+      width: 32px; height: 32px; background: var(--teal-light); color: var(--teal);
+      border: none; border-radius: 8px; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+    .month-btn:hover { background: var(--teal-mid); }
+    .month-label { font-size: 16px; font-weight: 700; color: var(--navy); }
+
+    .cal-wrap { background: var(--white); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .cal-day-name { text-align: center; font-size: 11px; color: var(--gray); padding: 6px 0; font-weight: 500; }
     .cal-day {
-      text-align: center; padding: 0; border-radius: 50%; cursor: pointer;
-      font-size: 13px; aspect-ratio: 1; display: flex; align-items: center;
-      justify-content: center; position: relative;
+      text-align: center; aspect-ratio: 1; display: flex; align-items: center;
+      justify-content: center; border-radius: 8px; cursor: pointer;
+      font-size: 13px; color: var(--navy); position: relative;
+      transition: background 0.15s;
     }
-    .cal-day:hover { background: #f0f0f0; }
-    .cal-day.today { background: #007AFF; color: white; font-weight: 700; }
-    .cal-day.selected:not(.today) { background: #e8f0fe; }
+    .cal-day:hover { background: var(--teal-light); }
+    .cal-day.today { background: var(--teal); color: white; font-weight: 700; }
+    .cal-day.selected:not(.today) { background: var(--teal-light); color: var(--teal); font-weight: 700; }
     .cal-day.has-event::after {
       content: ''; position: absolute; bottom: 3px; left: 50%;
       transform: translateX(-50%); width: 4px; height: 4px;
-      background: #FF9500; border-radius: 50%;
+      background: #F59E0B; border-radius: 50%;
     }
-    .cal-day.today.has-event::after { background: white; }
-    .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-    .month-nav button { width: auto; padding: 8px 16px; margin: 0; }
+    .cal-day.today.has-event::after { background: rgba(255,255,255,0.8); }
+
+    .event-section { }
+    .event-date-label { font-size: 13px; font-weight: 600; color: var(--gray); margin-bottom: 8px; }
     .event-item {
-      background: white; padding: 14px; border-radius: 12px;
-      margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      background: var(--white); border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 8px; box-shadow: var(--shadow);
+      border-left: 3px solid var(--teal);
     }
-    .event-title { font-weight: 600; margin-bottom: 4px; }
-    .event-meta { font-size: 12px; color: #999; }
-    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-    .photo-item { aspect-ratio: 1; overflow: hidden; border-radius: 6px; cursor: pointer; background: #eee; }
-    .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+    .event-item-title { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+    .event-item-meta { font-size: 12px; color: var(--gray); }
+    .event-empty { text-align: center; padding: 24px 0; color: #CCC; font-size: 13px; }
+
+    /* 사진 */
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .photo-item { aspect-ratio: 1; overflow: hidden; border-radius: 8px; cursor: pointer; background: var(--border); }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; }
+    .photo-item:hover img { transform: scale(1.05); }
+    .photo-empty { text-align: center; padding: 60px 0; color: #CCC; font-size: 14px; }
+
+    /* 사진 보기 */
     .photo-view {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.92); z-index: 100; flex-direction: column;
+      background: rgba(0,0,0,0.94); z-index: 200; flex-direction: column;
       justify-content: center; align-items: center;
     }
     .photo-view.active { display: flex; }
-    .photo-view img { max-width: 92%; max-height: 72vh; border-radius: 8px; }
-    .photo-view .caption { color: white; margin-top: 14px; text-align: center; font-size: 15px; }
-    .photo-view .close-btn { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; background: none; border: none; width: auto; margin: 0; }
-    .modal-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); z-index: 50;
+    .photo-view img { max-width: 92%; max-height: 72vh; border-radius: 10px; }
+    .photo-view .caption { color: rgba(255,255,255,0.8); margin-top: 16px; font-size: 14px; }
+    .photo-view .close-x {
+      position: absolute; top: 20px; right: 20px;
+      width: 36px; height: 36px; background: rgba(255,255,255,0.15); border-radius: 50%;
+      border: none; color: white; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
-    .modal-overlay.active { display: flex; align-items: flex-end; }
-    .modal {
-      background: white; border-radius: 20px 20px 0 0; padding: 24px;
-      width: 100%; max-width: 480px; margin: 0 auto;
+
+    /* 가족 탭 */
+    .invite-card {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      border-radius: 16px; padding: 28px; text-align: center;
+      margin-bottom: 16px; color: white;
     }
-    .modal h3 { margin-bottom: 16px; font-size: 18px; }
-    .fab {
-      position: fixed; bottom: 88px; right: calc(50% - 220px);
-      width: 54px; height: 54px; background: #007AFF; border-radius: 50%;
-      font-size: 26px; display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(0,122,255,0.45); cursor: pointer; color: white;
-      border: none; margin: 0; width: 54px;
-    }
-    .invite-box {
-      background: #f0f7ff; border: 2px dashed #007AFF; border-radius: 14px;
-      padding: 20px; text-align: center; margin-bottom: 20px;
-    }
-    .invite-code { font-size: 34px; font-weight: 700; letter-spacing: 8px; color: #007AFF; margin-top: 6px; }
-    .member-item {
-      padding: 12px 14px; background: white; border-radius: 12px;
+    .invite-card-label { font-size: 12px; opacity: 0.8; margin-bottom: 8px; letter-spacing: 1px; }
+    .invite-code-big { font-size: 36px; font-weight: 900; letter-spacing: 10px; margin-bottom: 4px; }
+    .invite-card-sub { font-size: 12px; opacity: 0.7; }
+    .member-card {
+      background: var(--white); border-radius: 10px; padding: 14px 16px;
       margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+      box-shadow: var(--shadow);
     }
-    .avatar {
-      width: 38px; height: 38px; background: #007AFF; border-radius: 50%;
+    .member-avatar {
+      width: 40px; height: 40px; background: var(--teal); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       color: white; font-weight: 700; font-size: 16px; flex-shrink: 0;
     }
+    .member-name { font-size: 15px; font-weight: 500; color: var(--navy); }
+
+    /* 하단 네비 */
+    .bottom-nav {
+      display: flex; background: var(--white);
+      border-top: 1px solid var(--border);
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
+    .nav-btn {
+      flex: 1; padding: 10px 0 8px; text-align: center; cursor: pointer;
+      font-size: 10px; color: #AAA; border: none; background: none;
+      font-family: inherit; transition: color 0.15s;
+    }
+    .nav-btn.active { color: var(--teal); }
+    .nav-btn .nav-icon { display: block; font-size: 20px; margin-bottom: 2px; }
+    .nav-btn.active .nav-label { font-weight: 600; }
+
+    /* FAB */
+    .fab {
+      position: fixed; bottom: 72px; right: calc(50% - 228px);
+      width: 52px; height: 52px; background: var(--teal); color: white;
+      border: none; border-radius: 50%; font-size: 24px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,155,141,0.45); cursor: pointer;
+      transition: background 0.2s, transform 0.1s; margin: 0;
+    }
+    .fab:hover { background: var(--teal-dark); transform: scale(1.08); }
+
+    /* 모달 */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); z-index: 100; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.active { display: flex; align-items: flex-end; }
+    .modal-sheet {
+      background: var(--white); border-radius: 20px 20px 0 0;
+      padding: 8px 24px 32px; width: 100%; max-width: 480px; margin: 0 auto;
+    }
+    .modal-handle {
+      width: 40px; height: 4px; background: var(--border);
+      border-radius: 99px; margin: 12px auto 20px;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 20px; }
+    .modal-sheet input {
+      width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-size: 14px; margin-bottom: 10px;
+      outline: none; font-family: inherit; color: var(--navy);
+    }
+    .modal-sheet input:focus { border-color: var(--teal); }
+    .modal-err { color: #DC2626; font-size: 13px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
 <!-- 로딩 -->
 <div id="loading-screen" class="screen active">
-  <div style="display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; gap:16px;">
-    <div style="font-size:56px;">👨‍👩‍👧‍👦</div>
-    <p style="color:#999;">로딩 중...</p>
-  </div>
+  <div class="loading-logo">👨‍👩‍👧‍👦</div>
+  <div class="loading-text">우리 가족</div>
+  <div class="loading-bar"><div class="loading-bar-inner"></div></div>
 </div>
 
-<!-- 로그인/회원가입 -->
+<!-- 첫 화면 -->
 <div id="auth-screen" class="screen">
-
-  <!-- 상단 헤더 -->
-  <header class="auth-header">
-    <div class="auth-logo">
-      <span>👨‍👩‍👧‍👦</span>우리 가족
+  <header class="site-header">
+    <div class="site-logo">
+      <div class="logo-icon">🏡</div>
+      <div>
+        우리 가족
+        <span class="logo-sub">Family Private Space</span>
+      </div>
     </div>
-    <div style="font-size:13px; color:#999;">가족만의 프라이빗 공간</div>
+    <div class="site-header-right">가족만의 프라이빗 공간</div>
   </header>
 
-  <!-- 히어로 섹션 -->
-  <div class="auth-hero">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-label">Family Private Space</div>
+      <h1 class="hero-title">
+        함께해서<br>더 행복한
+        <em>우리 가족</em>
+      </h1>
+      <p class="hero-desc">
+        일정을 함께 관리하고, 소중한 순간을 나눠요.<br>
+        초대된 가족만 입장할 수 있는 프라이빗 공간입니다.
+      </p>
 
-    <!-- 왼쪽: 폼 -->
-    <div class="auth-left">
-      <div class="auth-eyebrow">Family Private Space</div>
-      <h1 class="auth-title">우리 가족만의<br><em>특별한 공간</em></h1>
-      <p class="auth-desc">일정을 함께 관리하고, 소중한 사진을 나눠요.<br>초대된 가족만 입장할 수 있는 프라이빗 공간입니다.</p>
-
-      <div class="auth-form-box">
+      <div class="form-card">
         <div id="login-form">
-          <input type="email" id="login-email" placeholder="이메일" />
+          <input type="email" id="login-email" placeholder="이메일 주소" />
           <input type="password" id="login-password" placeholder="비밀번호" />
-          <div id="login-error" class="auth-error" style="display:none;"></div>
-          <button class="btn-primary" onclick="login()">로그인</button>
-          <p class="btn-link" onclick="showSignup()">처음이신가요? 회원가입 →</p>
+          <div id="login-error" class="form-error" style="display:none;"></div>
+          <button class="btn-teal" onclick="login()">로그인</button>
+          <p class="form-link" onclick="showSignup()">처음이신가요? 회원가입 →</p>
         </div>
-
         <div id="signup-form" style="display:none;">
           <input type="text" id="signup-name" placeholder="이름 (예: 아빠, 엄마, 민준)" />
-          <input type="email" id="signup-email" placeholder="이메일" />
+          <input type="email" id="signup-email" placeholder="이메일 주소" />
           <input type="password" id="signup-password" placeholder="비밀번호 (6자 이상)" />
-          <div id="signup-error" class="auth-error" style="display:none;"></div>
-          <button class="btn-primary" onclick="signup()">회원가입</button>
-          <p class="btn-link" onclick="showLogin()">← 이미 계정이 있으신가요?</p>
+          <div id="signup-error" class="form-error" style="display:none;"></div>
+          <button class="btn-teal" onclick="signup()">회원가입</button>
+          <p class="form-link" onclick="showLogin()">← 이미 계정이 있으신가요?</p>
         </div>
       </div>
     </div>
 
-    <!-- 오른쪽: 비주얼 -->
-    <div class="auth-right">
-      <div class="auth-deco" style="width:300px; height:300px; top:-80px; right:-80px;"></div>
-      <div class="auth-deco" style="width:200px; height:200px; bottom:-60px; left:-60px;"></div>
-      <div class="auth-visual">
-        <span class="big-emoji">🏡</span>
-        <h3>함께여서 행복한 우리 가족</h3>
-        <p>📅 일정 공유 &nbsp;·&nbsp; 📷 사진 앨범 &nbsp;·&nbsp; 👨‍👩‍👧 가족 초대</p>
+    <div class="hero-right">
+      <div class="hero-deco" style="width:320px;height:320px;top:-100px;right:-100px;"></div>
+      <div class="hero-deco" style="width:180px;height:180px;bottom:-60px;left:-60px;"></div>
+      <div class="hero-visual">
+        <span class="hero-emoji">🏡</span>
+        <div class="hero-visual-title">함께여서 행복한 우리 가족</div>
+        <div class="hero-chips">
+          <span class="hero-chip">📅 일정 공유</span>
+          <span class="hero-chip">📷 사진 앨범</span>
+          <span class="hero-chip">👨‍👩‍👧 가족 초대</span>
+        </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <!-- 그룹 설정 -->
 <div id="group-screen" class="screen">
-  <div style="padding-top:40px;">
-    <h2>가족 그룹 설정</h2>
-    <p class="subtitle">가족 그룹을 만들거나 초대 코드로 참여하세요</p>
-    <button onclick="createGroup()">✨ 새 가족 그룹 만들기</button>
-    <div style="text-align:center; margin:16px 0; color:#999; font-size:14px;">또는</div>
-    <input type="text" id="invite-input" placeholder="초대 코드 8자리 입력" maxlength="8" style="text-transform:uppercase; letter-spacing:4px; text-align:center;" />
-    <button class="secondary" onclick="joinGroup()">초대 코드로 참여</button>
-    <div id="group-error" class="error" style="display:none;"></div>
+  <header class="site-header">
+    <div class="site-logo">
+      <div class="logo-icon">🏡</div>
+      <div>우리 가족<span class="logo-sub">Family Private Space</span></div>
+    </div>
+  </header>
+  <div class="group-wrap">
+    <div class="group-card">
+      <h2>가족 그룹 설정</h2>
+      <p>가족 그룹을 만들거나<br>초대 코드로 기존 그룹에 참여하세요</p>
+      <button class="btn-teal" onclick="createGroup()">✨ 새 가족 그룹 만들기</button>
+      <div class="divider">또는</div>
+      <input type="text" id="invite-input" placeholder="초대 코드 8자리" maxlength="8" />
+      <div id="group-error" class="group-err" style="display:none;"></div>
+      <button class="btn-outline" onclick="joinGroup()">초대 코드로 참여</button>
+    </div>
   </div>
 </div>
 
 <!-- 메인 앱 -->
-<div id="app-screen" class="screen" style="padding:0;">
+<div id="app-screen" class="screen">
+
+  <!-- 상단 바 -->
+  <div class="app-topbar">
+    <div class="app-logo">
+      <span class="icon">🏡</span> 우리 가족
+    </div>
+    <div class="app-group-name" id="group-name-badge"></div>
+  </div>
 
   <!-- 캘린더 탭 -->
-  <div id="tab-calendar" class="dashboard">
-    <div class="header">
-      <h2>캘린더</h2>
-      <span id="group-name-badge" style="color:#999; font-size:13px;"></span>
+  <div id="tab-calendar" class="tab-content">
+    <div class="section-header">
+      <span class="section-title">캘린더</span>
+      <span class="section-sub" id="today-label"></span>
     </div>
+
     <div class="month-nav">
-      <button onclick="changeMonth(-1)" style="width:auto; padding:8px 14px; margin:0;">◀</button>
-      <span id="month-label" style="font-weight:600; font-size:16px;"></span>
-      <button onclick="changeMonth(1)" style="width:auto; padding:8px 14px; margin:0;">▶</button>
+      <button class="month-btn" onclick="changeMonth(-1)">◀</button>
+      <span class="month-label" id="month-label"></span>
+      <button class="month-btn" onclick="changeMonth(1)">▶</button>
     </div>
-    <div class="calendar-grid" style="margin-bottom:4px;">
-      <div class="cal-day-name">일</div><div class="cal-day-name">월</div>
-      <div class="cal-day-name">화</div><div class="cal-day-name">수</div>
-      <div class="cal-day-name">목</div><div class="cal-day-name">금</div>
-      <div class="cal-day-name">토</div>
+
+    <div class="cal-wrap">
+      <div class="cal-grid" style="margin-bottom:6px;">
+        <div class="cal-day-name" style="color:#EF4444;">일</div>
+        <div class="cal-day-name">월</div><div class="cal-day-name">화</div>
+        <div class="cal-day-name">수</div><div class="cal-day-name">목</div>
+        <div class="cal-day-name">금</div>
+        <div class="cal-day-name" style="color:#3B82F6;">토</div>
+      </div>
+      <div id="cal-days" class="cal-grid"></div>
     </div>
-    <div id="cal-days" class="calendar-grid" style="margin-bottom:16px;"></div>
-    <div>
-      <h3 id="selected-date-label" style="font-size:15px; color:#444; margin-bottom:10px;"></h3>
+
+    <div class="event-section">
+      <div class="event-date-label" id="selected-date-label"></div>
       <div id="event-list"></div>
     </div>
   </div>
 
   <!-- 사진 탭 -->
-  <div id="tab-photos" class="dashboard" style="display:none;">
-    <div class="header"><h2>사진</h2></div>
+  <div id="tab-photos" class="tab-content" style="display:none;">
+    <div class="section-header">
+      <span class="section-title">사진</span>
+      <span class="section-sub">가족 앨범</span>
+    </div>
     <div id="photo-grid" class="photo-grid"></div>
-    <p id="no-photos" style="text-align:center; color:#999; padding:40px 0; display:none;">아직 사진이 없어요 📷</p>
+    <div id="no-photos" class="photo-empty" style="display:none;">
+      📷<br>아직 사진이 없어요<br>+ 버튼으로 추가해보세요
+    </div>
   </div>
 
   <!-- 가족 탭 -->
-  <div id="tab-family" class="dashboard" style="display:none;">
-    <div class="header"><h2>가족</h2></div>
-    <p style="color:#666; margin-bottom:16px; font-size:14px;">아래 초대 코드를 가족에게 공유하세요</p>
-    <div class="invite-box">
-      <p style="color:#666; font-size:13px;">초대 코드</p>
-      <div id="invite-code-display" class="invite-code"></div>
+  <div id="tab-family" class="tab-content" style="display:none;">
+    <div class="section-header">
+      <span class="section-title">가족</span>
+      <span class="section-sub">멤버 관리</span>
     </div>
-    <button onclick="copyCode()">초대 코드 복사</button>
-    <button class="secondary" onclick="shareCode()">공유하기</button>
-    <h3 style="margin:24px 0 12px; font-size:16px;">가족 멤버</h3>
+
+    <div class="invite-card">
+      <div class="invite-card-label">INVITE CODE</div>
+      <div class="invite-code-big" id="invite-code-display"></div>
+      <div class="invite-card-sub">가족에게 이 코드를 공유하세요</div>
+    </div>
+
+    <button class="btn-teal" onclick="copyCode()" style="width:100%;padding:13px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:inherit;">초대 코드 복사</button>
+    <button class="btn-outline" onclick="shareCode()" style="width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:24px;font-family:inherit;">공유하기</button>
+
+    <div class="section-header" style="margin-top:8px;">
+      <span class="section-title" style="font-size:15px;">가족 멤버</span>
+    </div>
     <div id="member-list"></div>
   </div>
 
   <!-- 하단 네비 -->
-  <nav class="nav">
+  <nav class="bottom-nav">
     <button class="nav-btn active" id="nav-calendar" onclick="switchTab('calendar')">
-      <span>📅</span>캘린더
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">캘린더</span>
     </button>
     <button class="nav-btn" id="nav-photos" onclick="switchTab('photos')">
-      <span>📷</span>사진
+      <span class="nav-icon">📷</span>
+      <span class="nav-label">사진</span>
     </button>
     <button class="nav-btn" id="nav-family" onclick="switchTab('family')">
-      <span>👨‍👩‍👧</span>가족
+      <span class="nav-icon">👨‍👩‍👧</span>
+      <span class="nav-label">가족</span>
     </button>
   </nav>
 
@@ -309,32 +542,34 @@
 
 <!-- 일정 추가 모달 -->
 <div id="event-modal" class="modal-overlay">
-  <div class="modal">
-    <h3>일정 추가</h3>
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 일정 추가</div>
     <input type="text" id="ev-title" placeholder="일정 제목 (예: 가족 저녁 식사)" />
     <input type="date" id="ev-date" />
     <input type="text" id="ev-desc" placeholder="메모 (선택사항)" />
-    <div id="ev-error" class="error" style="display:none;"></div>
-    <button onclick="addEvent()">추가</button>
-    <button class="secondary" onclick="closeEventModal()">취소</button>
+    <div id="ev-error" class="modal-err" style="display:none;"></div>
+    <button class="btn-teal" onclick="addEvent()" style="width:100%;padding:13px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:inherit;">추가</button>
+    <button class="btn-outline" onclick="closeEventModal()" style="width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">취소</button>
   </div>
 </div>
 
 <!-- 사진 업로드 모달 -->
 <div id="upload-modal" class="modal-overlay">
-  <div class="modal">
-    <h3>사진 올리기</h3>
-    <input type="file" id="photo-file" accept="image/*" capture="environment" />
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📷 사진 올리기</div>
+    <input type="file" id="photo-file" accept="image/*" capture="environment" style="margin-bottom:12px;" />
     <input type="text" id="photo-caption" placeholder="사진 설명 (선택사항)" />
-    <div id="upload-error" class="error" style="display:none;"></div>
-    <button onclick="uploadPhoto()">올리기</button>
-    <button class="secondary" onclick="closeUploadModal()">취소</button>
+    <div id="upload-error" class="modal-err" style="display:none;"></div>
+    <button class="btn-teal" onclick="uploadPhoto()" style="width:100%;padding:13px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:inherit;">올리기</button>
+    <button class="btn-outline" onclick="closeUploadModal()" style="width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">취소</button>
   </div>
 </div>
 
 <!-- 사진 보기 -->
 <div id="photo-view" class="photo-view">
-  <button class="close-btn" onclick="closePhotoView()">✕</button>
+  <button class="close-x" onclick="closePhotoView()">✕</button>
   <img id="photo-view-img" src="" />
   <p class="caption" id="photo-view-caption"></p>
 </div>
@@ -353,31 +588,25 @@ let events = [];
 
 async function init() {
   const { data: { session } } = await db.auth.getSession();
-  if (session) {
-    user = session.user;
-    await loadProfile();
-  } else {
-    show('auth-screen');
-  }
+  if (session) { user = session.user; await loadProfile(); }
+  else show('auth-screen');
 }
 
 async function loadProfile() {
   const { data } = await db.from('profiles').select('*, groups(*)').eq('id', user.id).single();
   if (data) {
-    profile = data;
-    group = data.groups;
+    profile = data; group = data.groups;
     if (group) {
       show('app-screen');
       document.getElementById('group-name-badge').textContent = group.name;
       document.getElementById('invite-code-display').textContent = group.invite_code.toUpperCase();
+      const today = new Date();
+      document.getElementById('today-label').textContent =
+        `${today.getMonth()+1}월 ${today.getDate()}일`;
       await loadCalendar();
       await loadMembers();
-    } else {
-      show('group-screen');
-    }
-  } else {
-    show('group-screen');
-  }
+    } else show('group-screen');
+  } else show('group-screen');
 }
 
 function show(id) {
@@ -385,7 +614,6 @@ function show(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// 인증
 function showSignup() {
   document.getElementById('login-form').style.display = 'none';
   document.getElementById('signup-form').style.display = 'block';
@@ -401,9 +629,7 @@ async function login() {
   const err = document.getElementById('login-error');
   const { data, error } = await db.auth.signInWithPassword({ email, password: pw });
   if (error) { err.textContent = '이메일 또는 비밀번호가 올바르지 않습니다'; err.style.display = 'block'; return; }
-  user = data.user;
-  err.style.display = 'none';
-  await loadProfile();
+  user = data.user; err.style.display = 'none'; await loadProfile();
 }
 
 async function signup() {
@@ -416,11 +642,9 @@ async function signup() {
   if (error) { err.textContent = error.message; err.style.display = 'block'; return; }
   user = data.user;
   await db.from('profiles').insert({ id: user.id, name });
-  err.style.display = 'none';
-  show('group-screen');
+  err.style.display = 'none'; show('group-screen');
 }
 
-// 그룹
 async function createGroup() {
   const name = prompt('가족 그룹 이름을 입력하세요\n(예: 김씨 가족, 우리 가족)');
   if (!name || !name.trim()) return;
@@ -437,17 +661,13 @@ async function joinGroup() {
   const { data: g } = await db.from('groups').select().eq('invite_code', code).single();
   if (!g) { err.textContent = '유효하지 않은 초대 코드입니다'; err.style.display = 'block'; return; }
   await db.from('profiles').update({ group_id: g.id }).eq('id', user.id);
-  err.style.display = 'none';
-  await loadProfile();
+  err.style.display = 'none'; await loadProfile();
 }
 
-// 캘린더
 async function loadCalendar() {
   const { data } = await db.from('events')
     .select('*, profiles(name)').eq('group_id', group.id).order('date');
-  events = data || [];
-  renderCalendar();
-  renderEvents(selectedDate);
+  events = data || []; renderCalendar(); renderEvents(selectedDate);
 }
 
 function renderCalendar() {
@@ -461,39 +681,48 @@ function renderCalendar() {
   for (let i = 0; i < firstDay; i++) html += '<div></div>';
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const cls = [
-      'cal-day',
+    const cls = ['cal-day',
       ds === today ? 'today' : '',
       ds === selectedDate && ds !== today ? 'selected' : '',
       eventDates.has(ds) ? 'has-event' : ''
     ].join(' ');
-    html += `<div class="${cls}" onclick="selectDate('${ds}')">${d}</div>`;
+    const sun = (new Date(ds).getDay() === 0);
+    const sat = (new Date(ds).getDay() === 6);
+    const color = ds === today ? '' : sun ? 'color:#EF4444;' : sat ? 'color:#3B82F6;' : '';
+    html += `<div class="${cls}" style="${color}" onclick="selectDate('${ds}')">${d}</div>`;
   }
   document.getElementById('cal-days').innerHTML = html;
 }
 
 function selectDate(ds) {
-  selectedDate = ds;
-  renderCalendar();
-  renderEvents(ds);
+  selectedDate = ds; renderCalendar(); renderEvents(ds);
 }
 
 function renderEvents(ds) {
   const d = new Date(ds + 'T00:00:00');
   document.getElementById('selected-date-label').textContent =
     `${d.getMonth()+1}월 ${d.getDate()}일 일정`;
-  const list = document.getElementById('event-list');
   const day = events.filter(e => e.date === ds);
-  if (!day.length) {
-    list.innerHTML = '<p style="color:#bbb; text-align:center; padding:12px 0; font-size:14px;">일정 없음</p>';
-  } else {
-    list.innerHTML = day.map(e => `
+  document.getElementById('event-list').innerHTML = !day.length
+    ? '<div class="event-empty">등록된 일정이 없습니다</div>'
+    : day.map(e => `
       <div class="event-item">
-        <div class="event-title">${e.title}</div>
-        ${e.description ? `<div class="event-meta" style="margin-top:3px;">${e.description}</div>` : ''}
-        <div class="event-meta" style="margin-top:4px;">👤 ${e.profiles?.name || ''}</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div style="flex:1;">
+            <div class="event-item-title">${e.title}</div>
+            ${e.description ? `<div class="event-item-meta">${e.description}</div>` : ''}
+            <div class="event-item-meta">👤 ${e.profiles?.name || ''}</div>
+          </div>
+          <button onclick="deleteEvent('${e.id}')" style="background:none;border:none;color:#CCC;font-size:16px;cursor:pointer;padding:0;width:auto;margin:0;flex-shrink:0;">🗑</button>
+        </div>
       </div>`).join('');
-  }
+}
+
+async function deleteEvent(id) {
+  if (!confirm('이 일정을 삭제할까요?')) return;
+  const { error } = await db.from('events').delete().eq('id', id);
+  if (error) { alert('삭제 실패: ' + error.message); return; }
+  await loadCalendar();
 }
 
 function changeMonth(d) {
@@ -503,14 +732,9 @@ function changeMonth(d) {
   renderCalendar();
 }
 
-// 일정 추가
 function fabClick() {
-  if (tab === 'calendar') {
-    document.getElementById('ev-date').value = selectedDate;
-    document.getElementById('event-modal').classList.add('active');
-  } else if (tab === 'photos') {
-    document.getElementById('upload-modal').classList.add('active');
-  }
+  if (tab === 'calendar') { document.getElementById('ev-date').value = selectedDate; document.getElementById('event-modal').classList.add('active'); }
+  else if (tab === 'photos') document.getElementById('upload-modal').classList.add('active');
 }
 
 function closeEventModal() {
@@ -527,28 +751,31 @@ async function addEvent() {
   const err = document.getElementById('ev-error');
   if (!title) { err.textContent = '제목을 입력해주세요'; err.style.display = 'block'; return; }
   if (!date) { err.textContent = '날짜를 선택해주세요'; err.style.display = 'block'; return; }
-  const { error } = await db.from('events').insert({
-    group_id: group.id, title, date,
-    description: desc || null, created_by: user.id
-  });
+  const { error } = await db.from('events').insert({ group_id: group.id, title, date, description: desc || null, created_by: user.id });
   if (error) { err.textContent = '오류: ' + error.message; err.style.display = 'block'; return; }
-  closeEventModal();
-  await loadCalendar();
+  closeEventModal(); await loadCalendar();
 }
 
-// 사진
 async function loadPhotos() {
-  const { data } = await db.from('photos')
-    .select('*, profiles(name)').eq('group_id', group.id)
-    .order('created_at', { ascending: false });
+  const { data } = await db.from('photos').select('*, profiles(name)').eq('group_id', group.id).order('created_at', { ascending: false });
   const grid = document.getElementById('photo-grid');
   const none = document.getElementById('no-photos');
   if (!data || !data.length) { grid.innerHTML = ''; none.style.display = 'block'; return; }
   none.style.display = 'none';
   grid.innerHTML = data.map(p => `
-    <div class="photo-item" onclick="viewPhoto('${p.url}','${(p.caption||'').replace(/'/g,"\\'")}')">
-      <img src="${p.url}" loading="lazy" />
+    <div class="photo-item" style="position:relative;">
+      <img src="${p.url}" loading="lazy" onclick="viewPhoto('${p.url}','${(p.caption||'').replace(/'/g,"\\'")}')" />
+      <button onclick="deletePhoto('${p.id}','${p.url}')" style="position:absolute;top:4px;right:4px;width:26px;height:26px;background:rgba(0,0,0,0.55);border:none;border-radius:50%;color:white;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;margin:0;">🗑</button>
     </div>`).join('');
+}
+
+async function deletePhoto(id, url) {
+  if (!confirm('이 사진을 삭제할까요?')) return;
+  const path = url.split('/photos/')[1];
+  await db.storage.from('photos').remove([decodeURIComponent(path)]);
+  const { error } = await db.from('photos').delete().eq('id', id);
+  if (error) { alert('삭제 실패: ' + error.message); return; }
+  await loadPhotos();
 }
 
 function closeUploadModal() {
@@ -568,12 +795,8 @@ async function uploadPhoto() {
   const { error: upErr } = await db.storage.from('photos').upload(path, file);
   if (upErr) { err.textContent = '업로드 실패: ' + upErr.message; err.style.display = 'block'; return; }
   const { data: { publicUrl } } = db.storage.from('photos').getPublicUrl(path);
-  await db.from('photos').insert({
-    group_id: group.id, url: publicUrl,
-    caption: caption || null, created_by: user.id
-  });
-  closeUploadModal();
-  await loadPhotos();
+  await db.from('photos').insert({ group_id: group.id, url: publicUrl, caption: caption || null, created_by: user.id });
+  closeUploadModal(); await loadPhotos();
 }
 
 function viewPhoto(url, caption) {
@@ -581,35 +804,27 @@ function viewPhoto(url, caption) {
   document.getElementById('photo-view-caption').textContent = caption;
   document.getElementById('photo-view').classList.add('active');
 }
-function closePhotoView() {
-  document.getElementById('photo-view').classList.remove('active');
-}
+function closePhotoView() { document.getElementById('photo-view').classList.remove('active'); }
 
-// 가족 멤버
 async function loadMembers() {
   const { data } = await db.from('profiles').select('name').eq('group_id', group.id);
   document.getElementById('member-list').innerHTML = (data || []).map(m => `
-    <div class="member-item">
-      <div class="avatar">${m.name[0]}</div>
-      <span style="font-weight:500;">${m.name}</span>
+    <div class="member-card">
+      <div class="member-avatar">${m.name[0]}</div>
+      <span class="member-name">${m.name}</span>
     </div>`).join('');
 }
 
-// 초대 코드
 function copyCode() {
   const code = group.invite_code.toUpperCase();
   navigator.clipboard.writeText(code).then(() => alert('복사됨: ' + code));
 }
 function shareCode() {
   const code = group.invite_code.toUpperCase();
-  if (navigator.share) {
-    navigator.share({ title: '우리 가족 앱 초대', text: `가족 앱에 초대합니다!\n초대 코드: ${code}\n주소: ${location.href}` });
-  } else {
-    copyCode();
-  }
+  if (navigator.share) navigator.share({ title: '우리 가족 앱 초대', text: `가족 앱에 초대합니다!\n초대 코드: ${code}\n주소: ${location.href}` });
+  else copyCode();
 }
 
-// 탭 전환
 function switchTab(t) {
   tab = t;
   ['calendar','photos','family'].forEach(id => {
