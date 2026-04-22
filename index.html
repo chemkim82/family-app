@@ -323,7 +323,7 @@
 
     /* FAB */
     .fab {
-      position: fixed; bottom: 72px; right: calc(50% - 228px);
+      position: fixed; bottom: 80px; right: 20px;
       width: 52px; height: 52px; background: var(--teal); color: white;
       border: none; border-radius: 50%; font-size: 24px;
       display: flex; align-items: center; justify-content: center;
@@ -454,7 +454,10 @@
     <div class="app-logo">
       <span class="icon">🏡</span> 우리 가족
     </div>
-    <div class="app-group-name" id="group-name-badge"></div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="app-group-name" id="group-name-badge"></div>
+      <button onclick="logout()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--gray);cursor:pointer;font-family:inherit;white-space:nowrap;">로그아웃</button>
+    </div>
   </div>
 
   <!-- 캘린더 탭 -->
@@ -585,6 +588,13 @@ let tab = 'calendar';
 let year = new Date().getFullYear(), month = new Date().getMonth();
 let selectedDate = new Date().toISOString().split('T')[0];
 let events = [];
+
+async function logout() {
+  if (!confirm('로그아웃 하시겠어요?')) return;
+  await db.auth.signOut();
+  user = null; profile = null; group = null;
+  show('auth-screen');
+}
 
 async function init() {
   const { data: { session } } = await db.auth.getSession();
